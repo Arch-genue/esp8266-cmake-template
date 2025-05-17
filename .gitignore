@@ -1,2 +1,11 @@
 hardware/tools/sdk/ld/local.eagle.app.v6.common.ld
 build
+.vscode
+CMakeCache.txt
+.ninja*
+build.ninja
+CMakeFiles
+firmware.elf
+firmware.bin
+firmware.bin.signed
+cmake_install.cmake

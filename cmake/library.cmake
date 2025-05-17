@@ -18,14 +18,28 @@ function(LIBRARY TARGET)
         endif()
 
         file(GLOB_RECURSE LIB_SOURCES CONFIGURE_DEPENDS
-            "${LIB_PATH}/src/*.c"
-            "${LIB_PATH}/src/*.cpp"
-            "${LIB_PATH}/src/*.S"
-            "${LIB_PATH}/src/*.s"
+            "${LIB_PATH}/*.c"
+            "${LIB_PATH}/*.cpp"
+            "${LIB_PATH}/*.S"
+            "${LIB_PATH}/*.s"
+
         )
 
+        # Получить все уникальные поддиректории, содержащие .h/.hpp
+        file(GLOB_RECURSE LIB_INCLUDE_FILES CONFIGURE_DEPENDS
+            "${LIB_PATH}/*.h"
+            "${LIB_PATH}/*.hpp"
+        )
+
+        set(LIB_INCLUDE_DIRS "")
+        foreach(_file IN LISTS LIB_INCLUDE_FILES)
+        get_filename_component(_dir "${_file}" DIRECTORY)
+        list(APPEND LIB_INCLUDE_DIRS "${_dir}")
+        endforeach()
+        list(REMOVE_DUPLICATES LIB_INCLUDE_DIRS)
+
         target_sources(${TARGET} PRIVATE ${LIB_SOURCES})
-        target_include_directories(${TARGET} PRIVATE "${LIB_PATH}/src")
+        target_include_directories(${TARGET} PRIVATE "${LIB_INCLUDE_DIRS}")
     endforeach()
 
     

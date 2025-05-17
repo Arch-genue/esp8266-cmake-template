@@ -30,10 +30,9 @@ add_compile_definitions(LWIP_IPV6=0)
 add_compile_definitions(ARDUINO=10819)
 add_compile_definitions(ARDUINO_ESP8266_NODEMCU)
 add_compile_definitions(ARDUINO_ARCH_ESP8266)
-add_compile_definitions(ARDUINO_BOARD="ESP8266_NODEMCU")
+add_compile_definitions(ARDUINO_BOARD=ESP8266_NODEMCU)
 add_compile_definitions(FLASHMODE_DIO)
 add_compile_definitions(ESP8266)
-
 
 #! LIBRARIES
 # function(get_all_subdirectories root_dir out_var)
@@ -84,7 +83,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-inline-functions -nostdlib")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mlongcalls -mtext-section-literals -MMD -ffunction-sections")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fno-rtti -fno-exceptions")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fno-rtti -fno-exceptions -fpermissive")
 
 set(CMAKE_EXE_LINKER_FLAGS "-g -w -Os -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -Wl,-static -L${LIBC_PATH}/lib -L${SDK_LIB_PATH}/${BUILD_SDK}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${SDK_LIB_PATH} -L${SDK_PATH}/ld -T${SDK_PATH}/ld/eagle.flash.4m1m.ld")
@@ -117,6 +116,21 @@ add_executable(firmware.elf
 )
 
 LIBRARY(firmware.elf ESP8266WiFi)
+LIBRARY(firmware.elf ESP8266WebServer)
+LIBRARY(firmware.elf ESP8266mDNS DNSServer)
+LIBRARY(firmware.elf EEPROM)
+LIBRARY(firmware.elf ArduinoOTA)
+
+# LIBRARY(firmware.elf WiFi)
+LIBRARY(firmware.elf WiFiManager)
+# LIBRARY(firmware.elf FastLED)
+LIBRARY(firmware.elf Time)
+LIBRARY(firmware.elf Timezone)
+# # LIBRARY(firmware.elf AsyncTCP)
+# LIBRARY(firmware.elf ESPAsyncTCP)
+LIBRARY(firmware.elf GyverButton)
+LIBRARY(firmware.elf NTPClient)
+
 
 target_link_libraries(firmware.elf
     ${SDK_LIB_PATH}/libhal.a
