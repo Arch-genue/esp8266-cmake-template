@@ -1,0 +1,1 @@
+rm -rf build.ninja CMakeCache.txt cmake_install.cmake CMakeFiles
