@@ -9,18 +9,28 @@ set(TOOLCHAIN ${CMAKE_SOURCE_DIR}/xtensa-toolchain)
 set(PLATFORM_PATH ${CMAKE_SOURCE_DIR}/hardware)
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 
+set(LIBC_PATH ${PLATFORM_PATH}/tools/sdk/libc/xtensa-lx106-elf)
+set(TOOLS_PATH ${PLATFORM_PATH}/tools)
+set(SDK_PATH ${PLATFORM_PATH}/tools/sdk)
+set(SDK_LIB_PATH ${SDK_PATH}/lib)
+set(BOOTLOADER ${PLATFORM_PATH}/bootloaders/eboot/eboot.elf)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(library)
 
 set(CMAKE_C_COMPILER ${TOOLCHAIN}/bin/xtensa-lx106-elf-gcc)
 set(CMAKE_CXX_COMPILER ${TOOLCHAIN}/bin/xtensa-lx106-elf-g++)
 set(CMAKE_ASM_COMPILER ${TOOLCHAIN}/bin/xtensa-lx106-elf-gcc)
+set(SDK_ELF2BIN ${TOOLCHAIN}/bin/xtensa-lx106-elf-objcopy)
+set(TOOLCHAIN_OBJCOPY ${TOOLCHAIN}/bin/xtensa-lx106-elf-objcopy)
+set(TOOLCHAIN_ADDR2LINE ${TOOLCHAIN}/bin/xtensa-lx106-elf-objcopy)
+set(TOOLCHAIN_ELFSIZE ${TOOLCHAIN}/bin/xtensa-lx106-elf-size)
+set(TOOLCHAIN_READELF ${TOOLCHAIN}/bin/xtensa-lx106-elf-readelf)
 
 set (BUILD_FLOAT "-u _printf_float -u _scanf_float")
 set (BUILD_SDK NONOSDK221)
 set (BUILD_VTABLE_FLAGS -DVTABLES_IN_FLASH)
 set (BUILD_FCPU 80000000L)
-
 
 add_compile_definitions(${BUILD_SDK}=1)
 add_compile_definitions(F_CPU=${BUILD_FCPU})
@@ -35,22 +45,6 @@ add_compile_definitions(ARDUINO_BOARD=ESP8266_NODEMCU)
 add_compile_definitions(FLASHMODE_DIO)
 add_compile_definitions(ESP8266)
 
-#! LIBRARIES
-# function(get_all_subdirectories root_dir out_var)
-#     file(GLOB children RELATIVE "${root_dir}" "${root_dir}/*")
-#     set(LIBRARIES_DIRS "")
-#     foreach(child ${children})
-#         if(IS_DIRECTORY "${root_dir}/${child}")
-#             list(APPEND LIBRARIES_DIRS "${root_dir}/${child}")
-#             get_all_subdirectories("${root_dir}/${child}" subdirs)
-#             list(APPEND LIBRARIES_DIRS ${subdirs})
-#         endif()
-#     endforeach()
-#     set(${out_var} ${LIBRARIES_DIRS} PARENT_SCOPE)
-# endfunction()
-
-# get_all_subdirectories(${PLATFORM_PATH}/libraries LIBRARIES_DIRS)
-
 include_directories(
     ${PLATFORM_PATH}/cores/esp8266
     ${PLATFORM_PATH}/tools/sdk/include
@@ -62,20 +56,11 @@ include_directories(
     ${PLATFORM_PATH}/variants/generic
     ${TOOLCHAIN}/xtensa-lx106-elf/include/c++/4.8.2/
     ${TOOLCHAIN}/xtensa-lx106-elf/include/c++/4.8.2/xtensa-lx106-elf
-
-    # ${LIBRARIES_DIRS}
 )
-# message(as ${PLATFORM_PATH} ${LIBRARIES_DIRS})
+
 
 set(CMAKE_C_OUTPUT_EXTENSION .o)
 set(CMAKE_CXX_OUTPUT_EXTENSION .o)
-set(CMAKE_C_FLAGS_INIT "-nostdlib")
-set(CMAKE_CXX_FLAGS_INIT "-nostdlib")
-
-set(LIBC_PATH ${PLATFORM_PATH}/tools/sdk/libc/xtensa-lx106-elf)
-set(SDK_PATH ${PLATFORM_PATH}/tools/sdk)
-set(SDK_LIB_PATH ${SDK_PATH}/lib)
-
 set(CMAKE_C_FLAGS_INIT "-nostdlib")
 set(CMAKE_CXX_FLAGS_INIT "-nostdlib")
 
@@ -177,3 +162,16 @@ add_custom_command(
 
 add_custom_target(generate_ld_script DEPENDS ${LD_OUTPUT})
 add_dependencies(firmware.elf generate_ld_script)
+
+add_custom_command(TARGET firmware.elf POST_BUILD
+    COMMENT "Converting ELF to BIN and displaying size"
+    COMMAND ${TOOLCHAIN_ELFSIZE} firmware.elf
+    COMMAND ${TOOLS_PATH}/elf2bin.py --eboot ${BOOTLOADER} --app ${CMAKE_CURRENT_BINARY_DIR}/firmware.elf --flash_mode qio --flash_freq 40 --flash_size 4M --out ${CMAKE_CURRENT_BINARY_DIR}/firmware.bin -p ${TOOLCHAIN}/bin
+    COMMAND ${TOOLS_PATH}/signing.py --mode sign --privatekey hardware/libraries/ESP8266httpUpdate/examples/httpUpdateSigned/private.key --bin ${CMAKE_CURRENT_BINARY_DIR}/firmware.bin --out ${CMAKE_CURRENT_BINARY_DIR}/firmware.bin.signed
+)
+
+add_custom_target(flash
+    COMMENT "Flashing firmware to ESP8266"
+    COMMAND ${TOOLS_PATH}/upload.py --port "/dev/ttyUSB0" --baud 921600 write_flash --flash_size detect 0x0 firmware.bin.signed --end
+    DEPENDS firmware.elf
+)

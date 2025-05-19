@@ -203,8 +203,8 @@ bool musicMode() {
 }
   
 byte getScale() {
-    // if (musicMode() && CUR_PRES.soundReact == GL_REACT_SCL) return mapFF(analog->getSoundVol(), CUR_PRES.min, CUR_PRES.max);
-    // else return CUR_PRES.scale;
+    if (musicMode() && CUR_PRES.soundReact == GL_REACT_SCL) return mapFF(analog->getSoundVol(), CUR_PRES.min, CUR_PRES.max);
+    else return CUR_PRES.scale;
 }
   
 void updPal() {
