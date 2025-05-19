@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(TOOLCHAIN ${CMAKE_SOURCE_DIR}/xtensa-toolchain)
 set(PLATFORM_PATH ${CMAKE_SOURCE_DIR}/hardware)
+set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(library)
@@ -107,25 +108,31 @@ file(GLOB_RECURSE SRC_FILES
     ${PLATFORM_PATH}/cores/esp8266/*.cpp
     ${PLATFORM_PATH}/cores/esp8266/*.c
     ${PLATFORM_PATH}/cores/esp8266/*.S
-    ${CMAKE_SOURCE_DIR}/src/*.c
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
 )
 
 add_executable(firmware.elf
     ${SRC_FILES}
+    ${SRC_DIR}/constants.cpp
+    ${SRC_DIR}/utility.cpp
+    ${SRC_DIR}/timers.cpp
+    ${SRC_DIR}/palettes.cpp
+    ${SRC_DIR}/volanalyzer.cpp
+    ${SRC_DIR}/FFT_C.cpp
+    ${SRC_DIR}/analog.cpp
+    ${SRC_DIR}/main.cpp
 )
 
-LIBRARY(firmware.elf ESP8266WiFi)
 LIBRARY(firmware.elf ESP8266WebServer)
+LIBRARY(firmware.elf ESP8266WiFi)
 LIBRARY(firmware.elf ESP8266mDNS DNSServer)
-LIBRARY(firmware.elf EEPROM)
 LIBRARY(firmware.elf ArduinoOTA)
+LIBRARY(firmware.elf EEPROM)
 
 # LIBRARY(firmware.elf WiFi)
-LIBRARY(firmware.elf WiFiManager)
-# LIBRARY(firmware.elf FastLED)
-LIBRARY(firmware.elf Time)
-LIBRARY(firmware.elf Timezone)
+# LIBRARY(firmware.elf WiFiManager)
+LIBRARY(firmware.elf FastLED)
+# LIBRARY(firmware.elf Time)
+# LIBRARY(firmware.elf Timezone)
 # # LIBRARY(firmware.elf AsyncTCP)
 # LIBRARY(firmware.elf ESPAsyncTCP)
 LIBRARY(firmware.elf GyverButton)
