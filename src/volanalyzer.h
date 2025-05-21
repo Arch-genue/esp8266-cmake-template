@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include "FastFilter.h"
 
+
+
 class VolAnalyzer {
 public:
     VolAnalyzer (int pin = -1);

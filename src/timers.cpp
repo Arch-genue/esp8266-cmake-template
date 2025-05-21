@@ -182,9 +182,9 @@ static void HandleTimer(bool* ONflag, bool* settChanged, uint32_t* eepromTimeout
 
         TimerManager::TimerRunning = false;
         TimerManager::TimerHasFired = true;
-        FastLED.clear();
+        // FastLED.clear();
         delay(2);
-        FastLED.show();
+        // FastLED.show();
         *ONflag = !(*ONflag);
         changePower();
         *settChanged = true;

@@ -3,7 +3,6 @@
 #define FASTLED_USE_PROGMEM 1
 #include <Arduino.h>
 #include "constants.h"
-#include "types.h"
 #include <FastLED.h>
 
 // ************* НАСТРОЙКА МАТРИЦЫ *****
@@ -46,12 +45,12 @@
     #pragma message "Wrong matrix parameters! Set to default"
 #endif
 
-class LEDMatrix {
+class LED__DRIVER {
 public:
     CRGB leds[NUM_LEDS];
 
-    LEDMatrix();
-    ~LEDMatrix();
+    LED__DRIVER();
+    ~LED__DRIVER();
 
     void show();
     void clear();
@@ -61,16 +60,21 @@ public:
 
     void fillStrip(int from, int to, CRGB color);
 
+    // Залить строку цветом
     void fillRow(int row, CRGB color);
-
+    
+    // Назначить цвет пикселю
     void setPix(int x, int y, CRGB color);
+    void setPix(int x, CRGB color);
+
+    void draw(int i, CRGB color);
 
     void setPixOverlap(int x, int y, CRGB color);
 
-    void setPix(int x, CRGB color);
-
+    // Получить цвет пискеля
     uint32_t getPixColor(int x, int y);
 
+    // Получить пиксель
     uint16_t getPix(int x, int y);
 
     static uint16_t XY(uint8_t x, uint8_t y);
@@ -78,6 +82,7 @@ public:
     // залить все    
     void fillAll(CRGB color);
 
+    // Залить цветом
     void fillSolid(int numToFill, CRGB color);
 
     // функция отрисовки точки по координатам X Y
@@ -92,6 +97,8 @@ public:
     uint16_t getPixelNumber(uint8_t x, uint8_t y);
 
     CRGB* getLedsArray();
+
+    void setPower(bool state);
 
     float sqrt3(const float x);
 private:

@@ -98,11 +98,11 @@ file(GLOB_RECURSE SRC_FILES
 add_executable(firmware.elf
     ${SRC_FILES}
     ${SRC_DIR}/constants.cpp
-    ${SRC_DIR}/utility.cpp
     ${SRC_DIR}/timers.cpp
+    ${SRC_DIR}/leds_driver.cpp
+    ${SRC_DIR}/effects.cpp
     ${SRC_DIR}/palettes.cpp
     ${SRC_DIR}/volanalyzer.cpp
-    ${SRC_DIR}/FFT_C.cpp
     ${SRC_DIR}/analog.cpp
     ${SRC_DIR}/main.cpp
 )
